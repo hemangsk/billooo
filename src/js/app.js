@@ -30,6 +30,19 @@ class ExpenseApp {
 
         // Check for invite in URL
         this.checkForInvite();
+
+        // Initialize install prompt
+        this.deferredPrompt = null;
+        
+        // Listen for beforeinstallprompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            this.deferredPrompt = e;
+            // Show the install button
+            this.showInstallButton();
+        });
     }
 
     initializeUI() {
@@ -405,6 +418,68 @@ class ExpenseApp {
         QRCode.toCanvas(qrCodeContainer, inviteLink, { width: 128 }, function (error) {
             if (error) console.error(error);
         });
+    }
+
+    showInstallButton() {
+        const header = document.querySelector('header');
+        const installButton = document.createElement('button');
+        installButton.id = 'install-button';
+        installButton.className = 'install-button';
+        installButton.innerHTML = ' Add to Home Screen';
+        installButton.addEventListener('click', () => this.installApp());
+        
+        // Only show if not already installed
+        if (!this.isAppInstalled()) {
+            header.appendChild(installButton);
+        }
+    }
+
+    async installApp() {
+        if (!this.deferredPrompt) {
+            // If on iOS, show custom instructions
+            if (this.isIOS()) {
+                this.showIOSInstallInstructions();
+                return;
+            }
+            return;
+        }
+
+        // Show the install prompt
+        this.deferredPrompt.prompt();
+        
+        // Wait for the user to respond to the prompt
+        const { outcome } = await this.deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        
+        // Clear the deferredPrompt
+        this.deferredPrompt = null;
+        
+        // Hide the button
+        document.getElementById('install-button')?.remove();
+    }
+
+    showIOSInstallInstructions() {
+        const dialog = document.createElement('div');
+        dialog.className = 'install-dialog';
+        dialog.innerHTML = `
+            <h3>Install billooo on your iPhone</h3>
+            <ol>
+                <li>Tap the Share button <span class="ios-share-icon">⎙</span></li>
+                <li>Scroll down and tap "Add to Home Screen"</li>
+                <li>Tap "Add" to confirm</li>
+            </ol>
+            <button onclick="this.parentElement.remove()">Close</button>
+        `;
+        document.body.appendChild(dialog);
+    }
+
+    isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    isAppInstalled() {
+        return window.matchMedia('(display-mode: standalone)').matches ||
+               window.navigator.standalone === true;
     }
 }
 

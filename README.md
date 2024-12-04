@@ -147,3 +147,22 @@ MIT License - feel free to use and modify
 - PeerJS for P2P functionality
 - CRDT concept for sync
 - PWA technology
+
+### Installing the App
+
+#### On Desktop (Chrome, Edge, etc.)
+1. Click the "Add to Home Screen" button in the app
+2. Follow the browser's installation prompt
+3. The app will install and create a desktop shortcut
+
+#### On iPhone/iPad
+1. Open bill.ooo in Safari
+2. Tap the Share button
+3. Scroll down and tap "Add to Home Screen"
+4. Tap "Add" to confirm
+
+#### On Android
+1. Open bill.ooo in Chrome
+2. Click the "Add to Home Screen" button
+3. Follow the installation prompt
+4. The app will be added to your home screen
