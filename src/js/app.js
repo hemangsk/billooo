@@ -27,6 +27,9 @@ class ExpenseApp {
                 this.renderExpenses();
             }
         }
+
+        // Check for invite in URL
+        this.checkForInvite();
     }
 
     initializeUI() {
@@ -101,6 +104,12 @@ class ExpenseApp {
         document.getElementById('group-section').classList.remove('hidden');
         
         this.updateGroupUI();
+
+        // Check for pending invite
+        if (this.pendingInvite) {
+            this.handleInvite(this.pendingInvite);
+            this.pendingInvite = null;
+        }
     }
 
     showUserProfile() {
@@ -169,6 +178,16 @@ class ExpenseApp {
                 <h3>Current Group: ${this.crdt.currentGroup.name}</h3>
             `;
             this.renderExpenses(); // Render expenses when updating group UI
+        }
+
+        // Add invite button for current group
+        if (this.crdt.currentGroup) {
+            const inviteBtn = document.createElement('button');
+            inviteBtn.textContent = 'Invite Friends';
+            inviteBtn.onclick = () => this.showInviteDialog();
+            document.getElementById('current-group').appendChild(inviteBtn);
+            // vertical margin bottom
+            inviteBtn.style.marginBottom = '10px';
         }
     }
 
@@ -325,6 +344,60 @@ class ExpenseApp {
         this.crdt.removeExpense(id);
         this.renderExpenses();
         this.peerManager.broadcast(this.crdt.generateSyncMessage());
+    }
+
+    checkForInvite() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteId = urlParams.get('invite');
+        
+        if (inviteId) {
+            // Remove invite from URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Store invite to handle after user login if needed
+            this.pendingInvite = inviteId;
+            
+            if (this.crdt.currentUser) {
+                this.handleInvite(inviteId);
+            }
+        }
+    }
+
+    handleInvite(inviteId) {
+        try {
+            this.crdt.acceptInvite(inviteId);
+            this.showMessage('Successfully joined group!');
+            this.updateGroupUI();
+            this.renderExpenses();
+        } catch (error) {
+            this.showMessage(error.message, 'error');
+        }
+    }
+
+    showMessage(message, type = 'success') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${type}`;
+        messageDiv.textContent = message;
+        document.body.appendChild(messageDiv);
+        setTimeout(() => messageDiv.remove(), 3000);
+    }
+
+    showInviteDialog() {
+        const inviteLink = this.crdt.generateGroupInviteLink(this.crdt.currentGroup.id);
+        
+        const dialog = document.createElement('div');
+        dialog.className = 'invite-dialog';
+        dialog.innerHTML = `
+            <h3>Invite Friends</h3>
+            <p>Share this link with your friends:</p>
+            <div class="invite-link-container">
+                <input type="text" readonly value="${inviteLink}">
+                <button onclick="navigator.clipboard.writeText('${inviteLink}')">Copy</button>
+            </div>
+            <button onclick="this.parentElement.remove()">Close</button>
+        `;
+        
+        document.body.appendChild(dialog);
     }
 }
 

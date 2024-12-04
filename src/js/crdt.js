@@ -67,6 +67,7 @@ class ExpenseCRDT {
         this.categories = new Set(this.defaultCategories);
         this.currentUser = null;
         this.currentGroup = null;
+        this.pendingInvites = new Map(); // inviteId -> {groupId, expiresAt}
     }
 
     setCurrentUser(profile) {
@@ -266,5 +267,48 @@ class ExpenseCRDT {
                 !this.tombstones.has(expense.id)
             )
             .sort((a, b) => b.timestamp.time - a.timestamp.time);
+    }
+
+    generateGroupInviteLink(groupId) {
+        if (!this.currentUser || !this.groups.has(groupId)) {
+            throw new Error('Invalid group or user');
+        }
+
+        const inviteId = `inv-${new Timestamp().time}-${this.currentUser.id}`;
+        const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
+
+        this.pendingInvites.set(inviteId, {
+            groupId,
+            expiresAt
+        });
+
+        this.saveToLocal();
+
+        // Generate invite URL
+        const baseUrl = window.location.origin;
+        return `${baseUrl}?invite=${inviteId}`;
+    }
+
+    acceptInvite(inviteId) {
+        const invite = this.pendingInvites.get(inviteId);
+        if (!invite || !this.currentUser) {
+            throw new Error('Invalid invite or user not logged in');
+        }
+
+        if (invite.expiresAt < Date.now()) {
+            this.pendingInvites.delete(inviteId);
+            throw new Error('Invite has expired');
+        }
+
+        const group = this.groups.get(invite.groupId);
+        if (!group) {
+            throw new Error('Group not found');
+        }
+
+        // Add user to group
+        group.members.add(this.currentUser.id);
+        this.currentGroup = group;
+        this.pendingInvites.delete(inviteId);
+        this.saveToLocal();
     }
 }
