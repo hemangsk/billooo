@@ -134,7 +134,7 @@ MIT License - feel free to use and modify
 ## Support
 - Open an issue for bugs
 - Submit PRs for improvements
-- Contact: your@email.com
+- Contact: hemangsk@gmail.com
 
 ## Roadmap
 - [ ] Add multi-currency support
