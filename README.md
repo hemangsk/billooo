@@ -1,5 +1,5 @@
 <div align="center">
-# bill.ooo
+<h1>bill.ooo</h1>
 </div>
 
 A collaborative expense sharing Progressive Web App (PWA) that works offline and syncs across devices.
