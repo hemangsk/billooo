@@ -18,7 +18,7 @@ A collaborative expense sharing Progressive Web App (PWA) that works offline and
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/billooo.git
+git clone https://github.com/hemangsk/billooo.git
 cd billooo
 ```
 
