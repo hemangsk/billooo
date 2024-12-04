@@ -394,10 +394,17 @@ class ExpenseApp {
                 <input type="text" readonly value="${inviteLink}">
                 <button onclick="navigator.clipboard.writeText('${inviteLink}')">Copy</button>
             </div>
+            <div id="qr-code"></div>
             <button onclick="this.parentElement.remove()">Close</button>
         `;
         
         document.body.appendChild(dialog);
+
+        // Generate QR code
+        const qrCodeContainer = document.getElementById('qr-code');
+        QRCode.toCanvas(qrCodeContainer, inviteLink, { width: 128 }, function (error) {
+            if (error) console.error(error);
+        });
     }
 }
 
