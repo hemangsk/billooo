@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bill.ooo</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007AFF">
+    <meta name="description" content="A collaborative expense sharing app">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="ExpenseShare">
+    
+    <!-- PWA Links -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    
+    <!-- Existing Links -->
+    <link rel="stylesheet" href="src/css/styles.css">
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>bill.ooo</h1>
+        </header>
+        
+        <main>
+            <!-- User Profile Section -->
+            <div id="user-profile-section">
+                <div id="current-user"></div>
+                <div id="profile-form" class="hidden">
+                    <h2>Create Profile</h2>
+                    <form id="profile-setup">
+                        <input type="text" id="user-name" placeholder="Your Name" required>
+                        <input type="email" id="user-email" placeholder="Your Email" required>
+                        <button type="submit">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Group Management Section -->
+            <div id="group-section" class="hidden">
+                <div id="current-group"></div>
+                <div class="group-controls">
+                    <button id="new-group-btn">New Group</button>
+                    <select id="group-selector">
+                        <option value="">Select Group</option>
+                    </select>
+                </div>
+                <div id="group-form" class="hidden">
+                    <h2>Create Group</h2>
+                    <form id="group-setup">
+                        <input type="text" id="group-name" placeholder="Group Name" required>
+                        <button type="submit">Create Group</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Add this after the group-section div -->
+            <div id="balance-section" class="hidden">
+                <h2>Group Balances</h2>
+                <div id="balance-summary"></div>
+                <div id="simplified-transfers"></div>
+                <div id="category-breakdown"></div>
+            </div>
+
+            <!-- Existing connection controls -->
+            <div id="connection-controls">
+                <div id="my-id"></div>
+                <div class="peer-connection">
+                    <input type="text" id="peer-id" placeholder="Enter peer ID to connect">
+                    <button onclick="app.connectToPeer()">Connect</button>
+                </div>
+                <div id="connected-peers"></div>
+            </div>
+
+            <!-- Updated expense form -->
+            <div id="expense-form" class="hidden">
+                <h2>Add Expense</h2>
+                <form id="new-expense">
+                    <input type="text" id="description" placeholder="Description" required>
+                    <input type="number" id="amount" placeholder="Amount" step="0.01" required>
+                    <select id="category" required>
+                        <option value="">Select Category</option>
+                    </select>
+                    <button type="submit">Add Expense</button>
+                </form>
+            </div>
+
+            <div id="expense-list">
+                <!-- Expenses will be rendered here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="src/js/crdt.js"></script>
+    <script src="src/js/peer-manager.js"></script>
+    <script src="src/js/expense-calculator.js"></script>
+    <script src="src/js/app.js"></script>
+
+    <!-- Add this before closing body tag -->
+    <script>
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
